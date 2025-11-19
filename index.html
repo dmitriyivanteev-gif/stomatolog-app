@@ -150,6 +150,16 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+		// Получаем сегодняшнюю дату в формате ГГГГ-ММ-ДД
+		let today = new Date();
+		let dd = String(today.getDate()).padStart(2, '0');
+		let mm = String(today.getMonth() + 1).padStart(2, '0'); //Январь это 0!
+		let yyyy = today.getFullYear();
+
+		today = yyyy + '-' + mm + '-' + dd;
+
+		// Находим поле даты и ставим ему ограничение min
+		document.getElementById("date-input").setAttribute("min", today);
 
         let selectedService = null;
         let selectedPrice = 0;
