@@ -122,7 +122,7 @@
     <h3>3. Ваши контакты:</h3>
     <div class="form-group">
         <label>Ваш телефон:</label>
-        <input type="tel" id="phone-input" placeholder="+7 (999) ...">
+        <input type="tel" id="phone-input" placeholder="+7 (999) 000-00-00" maxlength="18">
     </div>
     
     <div class="form-group">
@@ -208,37 +208,101 @@
             checkForm();
         }
 
-        // Слушаем изменения
-        document.getElementById('date-input').addEventListener('change', checkForm);
-        document.getElementById('time-select').addEventListener('change', checkForm); // СЛУШАЕМ НОВЫЙ СЕЛЕКТ
-        document.getElementById('phone-input').addEventListener('input', checkForm);
+// --- 👇 ВСТАВЛЯТЬ ОТСЮДА 👇 ---
 
+        // Переменная для поля телефона
+        let phoneInput = document.getElementById('phone-input');
+
+        // 1. МАСКА ТЕЛЕФОНА (Ввод цифр)
+        phoneInput.addEventListener('input', function (e) {
+            // Оставляем только цифры
+            let input = e.target.value.replace(/\D/g, ''); 
+            let formatted = '';
+
+            if (!input) {
+                e.target.value = '';
+                checkForm();
+                return;
+            }
+
+            // Логика для РФ (начинается с 7, 8 или 9)
+            let first = input[0];
+            if (['7', '8', '9'].indexOf(first) > -1) {
+                if (first === '9') input = '7' + input;
+                if (first === '8') input = '7' + input.substring(1);
+                
+                // Формируем "+7 (XXX) XXX-XX-XX"
+                formatted = '+7 ';
+                if (input.length > 1) formatted += '(' + input.substring(1, 4);
+                if (input.length >= 5) formatted += ') ' + input.substring(4, 7);
+                if (input.length >= 8) formatted += '-' + input.substring(7, 9);
+                if (input.length >= 10) formatted += '-' + input.substring(9, 11);
+            } else {
+                // Для иностранных номеров просто плюсик
+                formatted = '+' + input;
+            }
+
+            e.target.value = formatted;
+            checkForm();
+        });
+
+        // 2. ЗАЩИТА ОТ УДАЛЕНИЯ (Чтобы Backspace работал нормально)
+        phoneInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && e.target.value.length <= 4) {
+                e.target.value = '';
+                checkForm();
+            }
+        });
+
+        // 3. СЛУШАЕМ ОСТАЛЬНЫЕ ПОЛЯ
+        document.getElementById('date-input').addEventListener('change', checkForm);
+        document.getElementById('time-select').addEventListener('change', checkForm);
+        
+        // 4. ГЛАВНАЯ ПРОВЕРКА (Валидация)
         function checkForm() {
             let date = document.getElementById('date-input').value;
-            let time = document.getElementById('time-select').value; // БЕРЕМ ЗНАЧЕНИЕ ИЗ СПИСКА
+            let time = document.getElementById('time-select').value;
             let phone = document.getElementById('phone-input').value;
 
-            if (selectedService && date && time && phone.length > 5) {
+            // Считаем реальное количество цифр в телефоне
+            let raw_phone = phone.replace(/\D/g, '');
+            
+            // Телефон валиден, если там 11 цифр (79990000000) или больше
+            let isPhoneValid = raw_phone.length >= 11;
+
+            // Условие: Услуга выбрана + Дата есть + Время есть + Телефон полный
+            if (selectedService && date && time && isPhoneValid) {
                 tg.MainButton.text = `Записаться на ${time}`;
                 tg.MainButton.show();
+                document.getElementById('phone-input').style.borderColor = "#2cab37"; // Зеленая рамка
             } else {
                 tg.MainButton.hide();
+                
+                // Подсветка ошибки, если начал вводить, но не закончил
+                if (phone.length > 5 && !isPhoneValid) {
+                    document.getElementById('phone-input').style.borderColor = "#ff3b30"; // Красная рамка
+                } else {
+                    document.getElementById('phone-input').style.borderColor = "#ccc"; // Обычная рамка
+                }
             }
         }
 
+        // 5. ОТПРАВКА ДАННЫХ БОТУ
         Telegram.WebApp.onEvent('mainButtonClicked', function(){
             let data = {
                 type: 'booking',
                 service: selectedService,
                 price: selectedPrice,
                 date: document.getElementById('date-input').value,
-                time: document.getElementById('time-select').value, // ОТПРАВЛЯЕМ ВЫБРАННЫЙ СЛОТ
+                time: document.getElementById('time-select').value,
                 phone: document.getElementById('phone-input').value,
                 comment: document.getElementById('comment-input').value,
                 user_name: user_name
             };
             tg.sendData(JSON.stringify(data));
         });
+        
+        // --- 👆 ВСТАВЛЯТЬ ДОСЮДА 👆 ---
     </script>
 </body>
 </html>
