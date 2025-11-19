@@ -141,10 +141,34 @@
         }
         generateTimeSlots(); // Запускаем сразу
 
-        // Защита от вчерашней даты
-        let today = new Date();
-        let todayStr = today.toISOString().split('T')[0];
-        document.getElementById("date-input").setAttribute("min", todayStr);
+		// --- УМНАЯ ЗАЩИТА ДАТЫ ---
+
+		// 1. Правильно вычисляем "сегодня" по местному времени (без UTC сдвигов)
+		let now = new Date();
+		let year = now.getFullYear();
+		let month = String(now.getMonth() + 1).padStart(2, '0');
+		let day = String(now.getDate()).padStart(2, '0');
+		let todayStr = `${year}-${month}-${day}`;
+
+		// 2. Ставим атрибут min (для компьютеров работает сразу)
+		let dateInput = document.getElementById("date-input");
+		dateInput.setAttribute("min", todayStr);
+
+		// 3. Добавляем "полицейского" для телефонов
+		dateInput.addEventListener('change', function() {
+			// Если выбранная дата меньше сегодняшней
+			if (this.value && this.value < todayStr) {
+				tg.showPopup({
+					title: 'Ошибка даты',
+					message: 'Нельзя записаться на прошедшую дату! Пожалуйста, выберите сегодня или будущий день.',
+					buttons: [{type: 'ok'}]
+				});
+				this.value = ''; // Сбрасываем значение
+				checkForm();     // Перепроверяем форму (чтобы скрыть кнопку)
+			} else {
+				checkForm();     // Если все ок - проверяем остальные поля
+			}
+		});
 
 
         // --- ЛОГИКА ---
