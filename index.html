@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Запись к стоматологу</title>
+    <style>
+        /* --- CSS СТИЛИ --- */
+        
+        /* Основные настройки страницы */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff); /* Цвет фона из темы Телеграм */
+            color: var(--tg-theme-text-color, #000000); /* Цвет текста из темы */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1, h3 { margin-top: 0; }
+        
+        /* Приветствие */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: var(--tg-theme-hint-color, #888);
+            margin: 0;
+        }
+
+        /* Сетка карточек услуг */
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Две колонки */
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Стиль одной карточки */
+        .service-card {
+            background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .service-card .icon { font-size: 32px; margin-bottom: 10px; display: block; }
+        .service-card .title { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+        .service-card .price { font-size: 12px; opacity: 0.8; }
+
+        /* Стиль ВЫБРАННОЙ карточки */
+        .service-card.selected {
+            border-color: var(--tg-theme-button-color, #2481cc); /* Синий цвет Телеграма */
+            background-color: rgba(36, 129, 204, 0.1); /* Легкий синий фон */
+        }
+
+        /* Поля ввода */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid var(--tg-theme-hint-color, #ccc);
+            border-radius: 8px;
+            background-color: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
+            font-size: 16px;
+            outline: none;
+        }
+        
+        input:focus { border-color: var(--tg-theme-button-color, #2481cc); }
+
+        /* Скрываем блоки ошибок */
+        .error { color: #ff3b30; font-size: 12px; display: none; margin-top: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. ШАПКА -->
+    <div class="header">
+        <h1 id="greeting">Привет! 👋</h1>
+        <p>Запишитесь на прием к стоматологу</p>
+    </div>
+
+    <!-- 2. ВЫБОР УСЛУГИ (Карточки) -->
+    <h3>Выберите услугу:</h3>
+    <div class="services-grid">
+        <!-- Карточка 1 -->
+        <div class="service-card" onclick="selectService('consultation', 0)">
+            <span class="icon">🩺</span>
+            <span class="title">Осмотр</span>
+            <span class="price">Бесплатно</span>
+        </div>
+        <!-- Карточка 2 -->
+        <div class="service-card" onclick="selectService('caries', 3000)">
+            <span class="icon">🦷</span>
+            <span class="title">Лечение</span>
+            <span class="price">от 3000₽</span>
+        </div>
+        <!-- Карточка 3 -->
+        <div class="service-card" onclick="selectService('cleaning', 5000)">
+            <span class="icon">✨</span>
+            <span class="title">Чистка</span>
+            <span class="price">5000₽</span>
+        </div>
+        <!-- Карточка 4 -->
+        <div class="service-card" onclick="selectService('whitening', 10000)">
+            <span class="icon">💎</span>
+            <span class="title">Отбеливание</span>
+            <span class="price">10000₽</span>
+        </div>
+    </div>
+
+    <!-- 3. ДАТА И ВРЕМЯ -->
+    <div class="form-group">
+        <label>Дата приема:</label>
+        <input type="date" id="date-input">
+    </div>
+    <div class="form-group">
+        <label>Время:</label>
+        <input type="time" id="time-input" min="09:00" max="20:00" step="1800"> <!-- шаг 30 мин -->
+    </div>
+
+    <!-- 4. КОНТАКТЫ -->
+    <div class="form-group">
+        <label>Ваш телефон:</label>
+        <input type="tel" id="phone-input" placeholder="+7 (999) 000-00-00">
+    </div>
+    
+    <div class="form-group">
+        <label>Комментарий (необязательно):</label>
+        <textarea id="comment-input" rows="3" placeholder="Болит зуб справа..."></textarea>
+    </div>
+
+    <!-- Подключаем Telegram Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script>
+        // --- ЛОГИКА ПРИЛОЖЕНИЯ (JS) ---
+        
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрыть на весь экран
+
+        // Переменные для хранения выбора
+        let selectedService = null;
+        let selectedPrice = 0;
+
+        // 1. Инициализация (подставляем имя)
+        // Если открыто в Телеграм - берем имя, если в браузере - ставим "Гость"
+        let user_name = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Гость";
+        document.getElementById("greeting").innerText = `Привет, ${user_name}! 👋`;
+
+        // Настройка Главной Кнопки
+        tg.MainButton.textColor = "#FFFFFF";
+        tg.MainButton.color = "#2cab37"; // Зеленый цвет
+
+        // 2. Функция выбора услуги
+        function selectService(serviceName, price) {
+            selectedService = serviceName;
+            selectedPrice = price;
+
+            // Визуально выделяем карточку
+            let cards = document.querySelectorAll('.service-card');
+            cards.forEach(card => card.classList.remove('selected')); // Убираем выделение у всех
+            
+            // Добавляем выделение тому, на что нажали (через event)
+            event.currentTarget.classList.add('selected');
+
+            checkForm(); // Проверяем, можно ли показать кнопку
+        }
+
+        // 3. Проверка формы (валидация)
+        // Слушаем изменения в полях
+        document.getElementById('date-input').addEventListener('change', checkForm);
+        document.getElementById('time-input').addEventListener('change', checkForm);
+        document.getElementById('phone-input').addEventListener('input', checkForm);
+
+        function checkForm() {
+            let date = document.getElementById('date-input').value;
+            let time = document.getElementById('time-input').value;
+            let phone = document.getElementById('phone-input').value;
+
+            // Если все заполнено
+            if (selectedService && date && time && phone.length > 5) {
+                tg.MainButton.text = `Записаться (${selectedPrice > 0 ? selectedPrice + '₽' : 'Бесплатно'})`;
+                tg.MainButton.show();
+            } else {
+                tg.MainButton.hide(); // Скрываем кнопку, если что-то не заполнено
+            }
+        }
+
+        // 4. Отправка данных боту
+        Telegram.WebApp.onEvent('mainButtonClicked', function(){
+            let data = {
+                type: 'booking', // метка, что это бронирование
+                service: selectedService,
+                price: selectedPrice,
+                date: document.getElementById('date-input').value,
+                time: document.getElementById('time-input').value,
+                phone: document.getElementById('phone-input').value,
+                comment: document.getElementById('comment-input').value,
+                user_name: user_name
+            };
+            
+            tg.sendData(JSON.stringify(data));
+        });
+
+    </script>
+</body>
+</html>
