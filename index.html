@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Запись к стоматологу</title>
     <style>
-        /* --- CSS СТИЛИ --- */
+        /* --- СТИЛИ (Остались почти те же) --- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--tg-theme-bg-color, #ffffff);
@@ -15,155 +15,141 @@
             box-sizing: border-box;
         }
 
-        h1, h3 { margin-top: 0; }
+        /* Логотип */
+        .logo-container { display: flex; justify-content: center; margin-bottom: 15px; }
+        .logo { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* --- НОВОЕ: Стили для Логотипа --- */
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        
-        .logo {
-            width: 100px;         /* Ширина логотипа */
-            height: 100px;        /* Высота */
-            object-fit: cover;    /* Чтобы картинка не сплющилась */
-            border-radius: 50%;   /* Делаем круглым (если хочешь квадратный - убери эту строку) */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Красивая тень */
-            background-color: #fff; /* Белый фон, если лого прозрачное */
-        }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { font-size: 22px; margin-bottom: 5px; margin-top: 0; }
+        .header p { color: var(--tg-theme-hint-color, #888); margin: 0; font-size: 14px; }
 
-        /* Приветствие */
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .header h1 { font-size: 22px; margin-bottom: 5px; }
-        .header p { color: var(--tg-theme-hint-color, #888); margin: 0; font-size: 14px;}
-
-        /* Сетка услуг */
-        .services-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
+        /* Услуги */
+        .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .service-card {
             background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
+            border: 2px solid transparent; border-radius: 12px; padding: 15px;
+            cursor: pointer; text-align: center; transition: all 0.2s ease;
         }
-        
-        .service-card .icon { font-size: 32px; margin-bottom: 10px; display: block; }
-        .service-card .title { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+        .service-card .icon { font-size: 32px; display: block; margin-bottom: 10px; }
+        .service-card .title { font-weight: bold; font-size: 14px; display: block; }
         .service-card .price { font-size: 12px; opacity: 0.8; }
-
-        .service-card.selected {
-            border-color: var(--tg-theme-button-color, #2481cc);
-            background-color: rgba(36, 129, 204, 0.1);
-        }
+        .service-card.selected { border-color: var(--tg-theme-button-color, #2481cc); background-color: rgba(36, 129, 204, 0.1); }
 
         /* Поля ввода */
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
         
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            box-sizing: border-box;
+        /* Стили для инпутов и нового SELECT */
+        input, textarea, select {
+            width: 100%; padding: 12px; box-sizing: border-box;
             border: 1px solid var(--tg-theme-hint-color, #ccc);
-            border-radius: 8px;
-            background-color: var(--tg-theme-bg-color, #fff);
+            border-radius: 8px; background-color: var(--tg-theme-bg-color, #fff);
             color: var(--tg-theme-text-color, #000);
-            font-size: 16px;
-            outline: none;
+            font-size: 16px; outline: none;
+            /* Убираем стандартную стрелку select на айфонах для красоты */
+            -webkit-appearance: none; appearance: none;
         }
-        input:focus { border-color: var(--tg-theme-button-color, #2481cc); }
+        input:focus, select:focus, textarea:focus { border-color: var(--tg-theme-button-color, #2481cc); }
+
     </style>
 </head>
 <body>
 
-    <!-- 1. ЛОГОТИП (Новое!) -->
+    <!-- ЛОГОТИП -->
     <div class="logo-container">
-        <!-- ВАЖНО: Если твой файл называется не logo.png, поменяй имя здесь -->
-        <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" alt="Логотип Клиники" class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" alt="Лого" class="logo">
     </div>
 
-    <!-- 2. ШАПКА -->
     <div class="header">
         <h1 id="greeting">Привет! 👋</h1>
-        <p>Запишитесь на прием к стоматологу</p>
+        <p>Запишитесь на прием</p>
     </div>
 
-    <!-- 3. УСЛУГИ -->
-    <h3>Выберите услугу:</h3>
+    <!-- УСЛУГИ -->
+    <h3>1. Выберите услугу:</h3>
     <div class="services-grid">
         <div class="service-card" onclick="selectService('consultation', 0)">
-            <span class="icon">🩺</span>
-            <span class="title">Осмотр</span>
-            <span class="price">Бесплатно</span>
+            <span class="icon">🩺</span><span class="title">Осмотр</span><span class="price">Бесплатно</span>
         </div>
         <div class="service-card" onclick="selectService('caries', 3000)">
-            <span class="icon">🦷</span>
-            <span class="title">Лечение</span>
-            <span class="price">от 3000₽</span>
+            <span class="icon">🦷</span><span class="title">Лечение</span><span class="price">от 3000₽</span>
         </div>
         <div class="service-card" onclick="selectService('cleaning', 5000)">
-            <span class="icon">✨</span>
-            <span class="title">Чистка</span>
-            <span class="price">5000₽</span>
+            <span class="icon">✨</span><span class="title">Чистка</span><span class="price">5000₽</span>
         </div>
         <div class="service-card" onclick="selectService('whitening', 10000)">
-            <span class="icon">💎</span>
-            <span class="title">Отбеливание</span>
-            <span class="price">10000₽</span>
+            <span class="icon">💎</span><span class="title">Отбелить</span><span class="price">10000₽</span>
         </div>
     </div>
 
-    <!-- 4. ДАТА И ВРЕМЯ -->
+    <!-- ДАТА -->
+    <h3>2. Выберите время:</h3>
     <div class="form-group">
         <label>Дата приема:</label>
         <input type="date" id="date-input">
     </div>
+
+    <!-- ВРЕМЯ (ТЕПЕРЬ ЭТО ВЫПАДАЮЩИЙ СПИСОК) -->
     <div class="form-group">
-        <label>Время:</label>
-        <input type="time" id="time-input" min="09:00" max="20:00" step="1800">
+        <label>Доступные слоты (30 мин):</label>
+        <select id="time-select">
+            <option value="" disabled selected>-- Выберите время --</option>
+            <!-- Сюда JavaScript добавит варианты: 09:00, 09:30... -->
+        </select>
     </div>
 
-    <!-- 5. КОНТАКТЫ -->
+    <!-- КОНТАКТЫ -->
+    <h3>3. Ваши контакты:</h3>
     <div class="form-group">
         <label>Ваш телефон:</label>
-        <input type="tel" id="phone-input" placeholder="+7 (999) 000-00-00">
+        <input type="tel" id="phone-input" placeholder="+7 (999) ...">
     </div>
     
     <div class="form-group">
         <label>Комментарий:</label>
-        <textarea id="comment-input" rows="2" placeholder="Болит зуб справа..."></textarea>
+        <textarea id="comment-input" rows="2" placeholder="Что беспокоит?"></textarea>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-		// Получаем сегодняшнюю дату в формате ГГГГ-ММ-ДД
-		let today = new Date();
-		let dd = String(today.getDate()).padStart(2, '0');
-		let mm = String(today.getMonth() + 1).padStart(2, '0'); //Январь это 0!
-		let yyyy = today.getFullYear();
 
-		today = yyyy + '-' + mm + '-' + dd;
+        // --- НАСТРОЙКИ ---
+        const START_HOUR = 9;  // Начало работы (09:00)
+        const END_HOUR = 20;   // Конец работы (20:00)
+        const STEP_MINUTES = 30; // Шаг записи (30 минут)
 
-		// Находим поле даты и ставим ему ограничение min
-		document.getElementById("date-input").setAttribute("min", today);
+        // 1. Генерируем список времени при загрузке
+        function generateTimeSlots() {
+            let select = document.getElementById('time-select');
+            // Очищаем (кроме первого пункта)
+            
+            for (let hour = START_HOUR; hour < END_HOUR; hour++) {
+                for (let min = 0; min < 60; min += STEP_MINUTES) {
+                    // Форматируем 9 -> "09", 0 -> "00"
+                    let hStr = String(hour).padStart(2, '0');
+                    let mStr = String(min).padStart(2, '0');
+                    let timeString = `${hStr}:${mStr}`;
+                    
+                    let option = document.createElement("option");
+                    option.value = timeString;
+                    option.text = timeString;
+                    select.appendChild(option);
+                }
+            }
+        }
+        generateTimeSlots(); // Запускаем сразу
 
+        // Защита от вчерашней даты
+        let today = new Date();
+        let todayStr = today.toISOString().split('T')[0];
+        document.getElementById("date-input").setAttribute("min", todayStr);
+
+
+        // --- ЛОГИКА ---
         let selectedService = null;
         let selectedPrice = 0;
-
         let user_name = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Гость";
         document.getElementById("greeting").innerText = `Привет, ${user_name}! 👋`;
 
@@ -173,23 +159,23 @@
         function selectService(serviceName, price) {
             selectedService = serviceName;
             selectedPrice = price;
-            
-            document.querySelectorAll('.service-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
             checkForm();
         }
 
+        // Слушаем изменения
         document.getElementById('date-input').addEventListener('change', checkForm);
-        document.getElementById('time-input').addEventListener('change', checkForm);
+        document.getElementById('time-select').addEventListener('change', checkForm); // СЛУШАЕМ НОВЫЙ СЕЛЕКТ
         document.getElementById('phone-input').addEventListener('input', checkForm);
 
         function checkForm() {
             let date = document.getElementById('date-input').value;
-            let time = document.getElementById('time-input').value;
+            let time = document.getElementById('time-select').value; // БЕРЕМ ЗНАЧЕНИЕ ИЗ СПИСКА
             let phone = document.getElementById('phone-input').value;
 
             if (selectedService && date && time && phone.length > 5) {
-                tg.MainButton.text = `Записаться (${selectedPrice > 0 ? selectedPrice + '₽' : 'Бесплатно'})`;
+                tg.MainButton.text = `Записаться на ${time}`;
                 tg.MainButton.show();
             } else {
                 tg.MainButton.hide();
@@ -202,7 +188,7 @@
                 service: selectedService,
                 price: selectedPrice,
                 date: document.getElementById('date-input').value,
-                time: document.getElementById('time-input').value,
+                time: document.getElementById('time-select').value, // ОТПРАВЛЯЕМ ВЫБРАННЫЙ СЛОТ
                 phone: document.getElementById('phone-input').value,
                 comment: document.getElementById('comment-input').value,
                 user_name: user_name
