@@ -188,7 +188,13 @@
 
             try {
                 // ЗАПРОС К СЕРВЕРУ
-                let response = await fetch(`${API_URL}/slots?date=${dateValue}`);
+// Добавляем заголовок ngrok-skip-browser-warning
+                let response = await fetch(`${API_URL}/slots?date=${dateValue}`, {
+                    method: 'GET',
+                    headers: {
+                        "ngrok-skip-browser-warning": "true" 
+                    }
+                });
                 
                 if (!response.ok) throw new Error("Сервер не отвечает");
                 
