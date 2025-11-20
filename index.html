@@ -5,298 +5,174 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Запись к стоматологу</title>
     <style>
-        /* --- СТИЛИ --- */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Логотип */
-        .logo-container { display: flex; justify-content: center; margin-bottom: 15px; }
-        .logo { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 { font-size: 22px; margin-bottom: 5px; margin-top: 0; }
-        .header p { color: var(--tg-theme-hint-color, #888); margin: 0; font-size: 14px; }
-
-        /* Услуги */
-        .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        
-        /* Анимация "Прыжок" для иконки */
-        @keyframes pop-icon {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.35); }
-            100% { transform: scale(1.15); }
-        }
-
-        .service-card {
-            background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            border: 2px solid transparent; border-radius: 12px; padding: 15px;
-            cursor: pointer; text-align: center; transition: all 0.2s ease;
-        }
-        .service-card .icon { font-size: 32px; display: block; margin-bottom: 10px; }
-        .service-card .title { font-weight: bold; font-size: 14px; display: block; }
-        .service-card .price { font-size: 12px; opacity: 0.8; }
-
-        /* Стиль выбранной карточки */
-        .service-card.selected {
-            border-color: var(--tg-theme-button-color, #2481cc);
-            background-color: rgba(36, 129, 204, 0.1);
-            box-shadow: 0 4px 15px rgba(36, 129, 204, 0.2);
-        }
-        .service-card.selected .icon {
-            display: inline-block;
-            animation: pop-icon 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        /* Поля ввода */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
-        
-        input, textarea, select {
-            width: 100%; padding: 12px; box-sizing: border-box;
-            border: 1px solid var(--tg-theme-hint-color, #ccc);
-            border-radius: 8px; background-color: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-            font-size: 16px; outline: none;
-            -webkit-appearance: none; appearance: none; /* Убираем стрелку на iOS */
-        }
-        input:focus, select:focus, textarea:focus { border-color: var(--tg-theme-button-color, #2481cc); }
-
+        /* Стили те же самые */
+        body{font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;background-color:var(--tg-theme-bg-color,#fff);color:var(--tg-theme-text-color,#000);padding:20px;box-sizing:border-box;margin:0}
+        .logo-container{display:flex;justify-content:center;margin-bottom:15px}.logo{width:100px;height:100px;object-fit:cover;border-radius:50%}
+        .header{text-align:center;margin-bottom:20px}
+        .services-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+        .service-card{background:var(--tg-theme-secondary-bg-color,#f5f5f5);border-radius:12px;padding:15px;text-align:center;border:2px solid transparent;cursor:pointer}
+        .service-card.selected{border-color:#2cab37;background:rgba(44,171,55,0.1)}
+        input,select,textarea{width:100%;padding:12px;margin-bottom:15px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;background:var(--tg-theme-bg-color,#fff);color:var(--tg-theme-text-color,#000);-webkit-appearance:none}
     </style>
 </head>
 <body>
 
-    <!-- ЛОГОТИП -->
-    <div class="logo-container">
-        <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" alt="Лого" class="logo">
-    </div>
-
-    <div class="header">
-        <h1 id="greeting">Привет! 👋</h1>
-        <p>Запишитесь на прием</p>
-    </div>
+    <div class="logo-container"><img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" class="logo"></div>
+    <div class="header"><h1>Запись на прием</h1></div>
 
     <!-- УСЛУГИ -->
-    <h3>1. Выберите услугу:</h3>
     <div class="services-grid">
-        <div class="service-card" onclick="selectService('consultation', 0)">
-            <span class="icon">🩺</span><span class="title">Осмотр</span><span class="price">Бесплатно</span>
-        </div>
-        <div class="service-card" onclick="selectService('caries', 3000)">
-            <span class="icon">🦷</span><span class="title">Лечение</span><span class="price">от 3000₽</span>
-        </div>
-        <div class="service-card" onclick="selectService('cleaning', 5000)">
-            <span class="icon">✨</span><span class="title">Чистка</span><span class="price">5000₽</span>
-        </div>
-        <div class="service-card" onclick="selectService('whitening', 10000)">
-            <span class="icon">💎</span><span class="title">Отбелить</span><span class="price">10000₽</span>
-        </div>
+        <div class="service-card" onclick="selectService('Осмотр', 0)">🩺 Осмотр<br><small>Бесплатно</small></div>
+        <div class="service-card" onclick="selectService('Лечение', 3000)">🦷 Лечение<br><small>от 3000₽</small></div>
+        <div class="service-card" onclick="selectService('Чистка', 5000)">✨ Чистка<br><small>5000₽</small></div>
     </div>
 
-    <!-- ДАТА -->
-    <h3>2. Выберите время:</h3>
-    <div class="form-group">
-        <label>Дата приема:</label>
-        <input type="date" id="date-input">
-    </div>
+    <label>Дата:</label>
+    <input type="date" id="date-input">
 
-    <!-- ВРЕМЯ (Загружается с сервера) -->
-    <div class="form-group">
-        <label>Доступные слоты:</label>
-        <select id="time-select">
-            <option value="" disabled selected>-- Сначала выберите дату --</option>
-        </select>
-    </div>
+    <label>Время:</label>
+    <select id="time-select"><option value="" disabled selected>-- Сначала выберите дату --</option></select>
 
-    <!-- КОНТАКТЫ -->
-    <h3>3. Ваши контакты:</h3>
-    <div class="form-group">
-        <label>Ваш телефон:</label>
-        <input type="tel" id="phone-input" placeholder="+7 (999) ... " maxlength="18">
-    </div>
-    
-    <div class="form-group">
-        <label>Комментарий:</label>
-        <textarea id="comment-input" rows="2" placeholder="Что беспокоит?"></textarea>
-    </div>
+    <label>Телефон:</label>
+    <input type="tel" id="phone-input" placeholder="+7 (999) ...">
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // ==========================================
-        // 👇 ВОТ ЗДЕСЬ ТВОЯ ССЫЛКА НА NGROK 👇
-        // ==========================================
-        const API_URL = "https://pottier-sena-glaucomatous.ngrok-free.dev";
-        // ==========================================
+    <!-- 🔥 ПОДКЛЮЧАЕМ FIREBASE (ОБЯЗАТЕЛЬНО В ТАКОМ ПОРЯДКЕ) -->
+    <script type="module">
+        // Импортируем функции из облака Google
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // ===========================================================
+        // 👇 ВСТАВЬ СЮДА ДАННЫЕ ИЗ ШАГА 2 (Firebase Console) 👇
+        // ===========================================================
+        const firebaseConfig = {
+		  apiKey: "AIzaSyA3m_8K5eQlA9j1MnCWTWUZ_uPHXc6JoA4",
+		  authDomain: "stomatolog-booking.firebaseapp.com",
+		  databaseURL: "https://stomatolog-booking-default-rtdb.firebaseio.com",
+		  projectId: "stomatolog-booking",
+		  storageBucket: "stomatolog-booking.firebasestorage.app",
+		  messagingSenderId: "402776344296",
+		  appId: "1:402776344296:web:b4091ba62458b3c8792b5d"
+        };
+        // ===========================================================
+
+        // Запускаем Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- ЛОГИКА ПРИЛОЖЕНИЯ ---
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        let selectedService = null;
-        let selectedPrice = 0;
-        let user_name = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Гость";
-        document.getElementById("greeting").innerText = `Привет, ${user_name}! 👋`;
+        // Настройки времени
+        const startHour = 9; 
+        const endHour = 20;
 
-        tg.MainButton.textColor = "#FFFFFF";
-        tg.MainButton.color = "#2cab37";
-
-        // --- 1. ВЫБОР УСЛУГИ ---
-        function selectService(serviceName, price) {
-            selectedService = serviceName;
-            selectedPrice = price;
-            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            checkForm();
-        }
-
-        // --- 2. ЗАЩИТА ДАТЫ (ПРОШЛОЕ + ВЫХОДНЫЕ) ---
-        let now = new Date();
-        let todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-        let dateInputEl = document.getElementById("date-input");
-        dateInputEl.setAttribute("min", todayStr);
-
-        dateInputEl.addEventListener('change', function() {
-            let val = this.value;
-            if (!val) return;
-
-            // Проверка на прошлое
-            if (val < todayStr) {
-                tg.showPopup({message: 'Нельзя вернуться в прошлое! 🕰️ Выберите актуальную дату.'});
-                this.value = '';
-                return;
-            }
-
-            // Если дата ок - грузим время с сервера
-            updateTimeSlots();
-            checkForm();
-        });
-
-
-        // --- 3. ЗАГРУЗКА ВРЕМЕНИ С СЕРВЕРА (NGROK) ---
-        async function updateTimeSlots() {
+        // 1. ГЛАВНАЯ ФУНКЦИЯ: ЗАГРУЗКА ВРЕМЕНИ ИЗ ОБЛАКА
+        async function loadTimeSlots() {
+            let dateVal = document.getElementById('date-input').value;
             let select = document.getElementById('time-select');
-            let dateValue = document.getElementById('date-input').value;
             
-            select.innerHTML = '<option value="" disabled selected>⏳ Ищем свободное время...</option>';
+            if (!dateVal) return;
+
+            select.innerHTML = '<option>⏳ Проверяем базу...</option>';
             select.disabled = true;
 
-            if (!dateValue) return;
+            // Формируем путь в базе: bookings/2023-11-25
+            const dateRef = ref(db, 'bookings/' + dateVal);
 
             try {
-                // ЗАПРОС К СЕРВЕРУ
-// Добавляем заголовок ngrok-skip-browser-warning
-                let response = await fetch(`${API_URL}/slots?date=${dateValue}`, {
-                    method: 'GET',
-                    headers: {
-                        "ngrok-skip-browser-warning": "true" 
-                    }
-                });
+                // Скачиваем данные
+                const snapshot = await get(dateRef);
+                let bookedTimes = [];
                 
-                if (!response.ok) throw new Error("Сервер не отвечает");
-                
-                let data = await response.json(); // { slots: ["10:00", "11:00"] }
-                let slots = data.slots;
+                if (snapshot.exists()) {
+                    // Если записи есть, собираем занятое время
+                    // snapshot.val() вернет объект: { "10:00": {...}, "12:00": {...} }
+                    bookedTimes = Object.keys(snapshot.val());
+                }
 
+                // Генерируем список
                 select.innerHTML = '<option value="" disabled selected>-- Выберите время --</option>';
+                
+                for (let h = startHour; h < endHour; h++) {
+                    for (let m of ["00", "30"]) {
+                        let timeStr = `${h < 10 ? '0'+h : h}:${m}`;
+                        
+                        // Если время занято в базе - пропускаем его!
+                        if (bookedTimes.includes(timeStr)) continue;
 
-                // Фильтр "сегодня" (убираем прошедшие часы)
-                let isToday = (dateValue === todayStr);
-                let currentHour = new Date().getHours();
-                let currentMinutes = new Date().getMinutes();
-
-                if (slots.length === 0) {
-                    let opt = document.createElement("option");
-                    opt.text = "На этот день мест нет 😔";
-                    select.appendChild(opt);
-                } else {
-                    slots.forEach(timeStr => {
-                        if (isToday) {
-                            let [h, m] = timeStr.split(':').map(Number);
-                            if (h < currentHour) return;
-                            if (h === currentHour && m < currentMinutes) return;
-                        }
-                        let option = document.createElement("option");
-                        option.value = timeStr;
-                        option.text = timeStr;
-                        select.appendChild(option);
-                    });
+                        let opt = document.createElement("option");
+                        opt.value = timeStr;
+                        opt.text = timeStr;
+                        select.appendChild(opt);
+                    }
                 }
 
             } catch (error) {
-                alert("Ошибка связи: " + error.message);
-                select.innerHTML = '<option>Ошибка загрузки</option>';
+                alert("Ошибка базы данных: " + error.message);
             } finally {
                 select.disabled = false;
             }
         }
 
-
-        // --- 4. МАСКА ТЕЛЕФОНА ---
-        let phoneInput = document.getElementById('phone-input');
-        phoneInput.addEventListener('input', function (e) {
-            let input = e.target.value.replace(/\D/g, ''); 
-            let formatted = '';
-            if (!input) { e.target.value = ''; checkForm(); return; }
-
-            let first = input[0];
-            if (['7', '8', '9'].indexOf(first) > -1) {
-                if (first === '9') input = '7' + input;
-                if (first === '8') input = '7' + input.substring(1);
-                formatted = '+7 ';
-                if (input.length > 1) formatted += '(' + input.substring(1, 4);
-                if (input.length >= 5) formatted += ') ' + input.substring(4, 7);
-                if (input.length >= 8) formatted += '-' + input.substring(7, 9);
-                if (input.length >= 10) formatted += '-' + input.substring(9, 11);
-            } else {
-                formatted = '+' + input;
-            }
-            e.target.value = formatted;
-            checkForm();
-        });
-        
-        phoneInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && e.target.value.length <= 4) {
-                e.target.value = ''; checkForm();
-            }
-        });
-
-
-        // --- 5. ПРОВЕРКА ФОРМЫ ---
-        document.getElementById('time-select').addEventListener('change', checkForm);
-
-        function checkForm() {
+        // 2. ФУНКЦИЯ ЗАПИСИ (СОХРАНЕНИЕ В ОБЛАКО)
+        window.saveBooking = function() {
             let date = document.getElementById('date-input').value;
             let time = document.getElementById('time-select').value;
             let phone = document.getElementById('phone-input').value;
-            let raw_phone = phone.replace(/\D/g, '');
+            let service = selectedService;
+            
+            tg.MainButton.showProgress();
 
-            if (selectedService && date && time && raw_phone.length >= 11) {
-                tg.MainButton.text = `Записаться на ${time}`;
-                tg.MainButton.show();
-            } else {
-                tg.MainButton.hide();
-            }
+            // Сохраняем в базу по пути: bookings/ДАТА/ВРЕМЯ
+            set(ref(db, 'bookings/' + date + '/' + time), {
+                phone: phone,
+                service: service,
+                name: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Гость"
+            })
+            .then(() => {
+                // Если успешно сохранилось
+                tg.MainButton.hideProgress();
+                let data = { date, time, phone, service };
+                tg.sendData(JSON.stringify(data)); // Закрываем окно
+            })
+            .catch((error) => {
+                tg.MainButton.hideProgress();
+                alert("Не удалось записаться: " + error.message);
+            });
         }
 
-        // --- 6. ОТПРАВКА ---
-        Telegram.WebApp.onEvent('mainButtonClicked', function(){
-            let data = {
-                type: 'booking',
-                service: selectedService,
-                price: selectedPrice,
-                date: document.getElementById('date-input').value,
-                time: document.getElementById('time-select').value,
-                phone: document.getElementById('phone-input').value,
-                comment: document.getElementById('comment-input').value,
-                user_name: user_name
-            };
-            tg.sendData(JSON.stringify(data));
-        });
+        // --- СЛУШАТЕЛИ СОБЫТИЙ ---
+        document.getElementById('date-input').addEventListener('change', loadTimeSlots);
+        
+        // Установка сегодняшней даты
+        let today = new Date().toISOString().split('T')[0];
+        document.getElementById('date-input').setAttribute('min', today);
 
+        // Глобальные переменные для доступа из HTML (из-за type="module")
+        let selectedService = null;
+        window.selectService = function(n, p) {
+            selectedService = n;
+            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            checkForm();
+        }
+
+        document.getElementById('time-select').addEventListener('change', checkForm);
+        document.getElementById('phone-input').addEventListener('input', checkForm);
+
+        function checkForm() {
+            let d = document.getElementById('date-input').value;
+            let t = document.getElementById('time-select').value;
+            let p = document.getElementById('phone-input').value;
+            if (selectedService && d && t && p.length > 5) {
+                tg.MainButton.text = `Записаться на ${t}`;
+                tg.MainButton.show();
+            } else { tg.MainButton.hide(); }
+        }
+
+        Telegram.WebApp.onEvent('mainButtonClicked', window.saveBooking);
     </script>
 </body>
 </html>
