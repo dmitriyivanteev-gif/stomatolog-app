@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Запись к стоматологу</title>
     <style>
-        /* Стили те же самые */
         body{font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;background-color:var(--tg-theme-bg-color,#fff);color:var(--tg-theme-text-color,#000);padding:20px;box-sizing:border-box;margin:0}
         .logo-container{display:flex;justify-content:center;margin-bottom:15px}.logo{width:100px;height:100px;object-fit:cover;border-radius:50%}
         .header{text-align:center;margin-bottom:20px}
@@ -36,14 +35,15 @@
     <label>Телефон:</label>
     <input type="tel" id="phone-input" placeholder="+7 (999) ...">
 
-    <!-- 🔥 ПОДКЛЮЧАЕМ FIREBASE (ОБЯЗАТЕЛЬНО В ТАКОМ ПОРЯДКЕ) -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- 🔥 СКРИПТ С FIREBASE -->
     <script type="module">
-        // Импортируем функции из облака Google
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // ===========================================================
-        // 👇 ВСТАВЬ СЮДА ДАННЫЕ ИЗ ШАГА 2 (Firebase Console) 👇
+        // 👇👇👇 ВСТАВЬ СЮДА СВОИ КЛЮЧИ ИЗ КОНСОЛИ FIREBASE 👇👇👇
         // ===========================================================
         const firebaseConfig = {
 		  apiKey: "AIzaSyA3m_8K5eQlA9j1MnCWTWUZ_uPHXc6JoA4",
@@ -56,19 +56,31 @@
         };
         // ===========================================================
 
-        // Запускаем Firebase
+        // Инициализация
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // --- ЛОГИКА ПРИЛОЖЕНИЯ ---
+        
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Настройки времени
-        const startHour = 9; 
-        const endHour = 20;
+        // Глобальные переменные
+        let selectedService = null;
+        let selectedPrice = 0;
+        let user_name = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Гость";
 
-        // 1. ГЛАВНАЯ ФУНКЦИЯ: ЗАГРУЗКА ВРЕМЕНИ ИЗ ОБЛАКА
+        // --- 1. ДЕЛАЕМ ФУНКЦИЮ ВЫБОРА УСЛУГИ ГЛОБАЛЬНОЙ ---
+        window.selectService = function(name, price) {
+            selectedService = name;
+            selectedPrice = price;
+            
+            // Визуальное выделение
+            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            checkForm();
+        }
+
+        // --- 2. ЗАГРУЗКА ВРЕМЕНИ ---
         async function loadTimeSlots() {
             let dateVal = document.getElementById('date-input').value;
             let select = document.getElementById('time-select');
@@ -78,101 +90,117 @@
             select.innerHTML = '<option>⏳ Проверяем базу...</option>';
             select.disabled = true;
 
-            // Формируем путь в базе: bookings/2023-11-25
-            const dateRef = ref(db, 'bookings/' + dateVal);
+            const startHour = 9; 
+            const endHour = 20;
+            let bookedTimes = [];
 
             try {
-                // Скачиваем данные
+                // Пытаемся получить занятое время
+                const dateRef = ref(db, 'bookings/' + dateVal);
                 const snapshot = await get(dateRef);
-                let bookedTimes = [];
                 
                 if (snapshot.exists()) {
-                    // Если записи есть, собираем занятое время
-                    // snapshot.val() вернет объект: { "10:00": {...}, "12:00": {...} }
                     bookedTimes = Object.keys(snapshot.val());
                 }
-
-                // Генерируем список
-                select.innerHTML = '<option value="" disabled selected>-- Выберите время --</option>';
-                
-                for (let h = startHour; h < endHour; h++) {
-                    for (let m of ["00", "30"]) {
-                        let timeStr = `${h < 10 ? '0'+h : h}:${m}`;
-                        
-                        // Если время занято в базе - пропускаем его!
-                        if (bookedTimes.includes(timeStr)) continue;
-
-                        let opt = document.createElement("option");
-                        opt.value = timeStr;
-                        opt.text = timeStr;
-                        select.appendChild(opt);
-                    }
-                }
-
             } catch (error) {
-                alert("Ошибка базы данных: " + error.message);
-            } finally {
-                select.disabled = false;
+                console.error("Ошибка базы данных:", error);
+                alert("Внимание! Не удалось проверить занятость. Проверьте ключи Firebase.");
             }
+
+            // Генерируем список
+            select.innerHTML = '<option value="" disabled selected>-- Выберите время --</option>';
+            
+            // Фильтр на "сегодня"
+            let now = new Date();
+            let todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            let isToday = (dateVal === todayStr);
+            let currentHour = now.getHours();
+            let currentMinutes = now.getMinutes();
+
+            for (let h = startHour; h < endHour; h++) {
+                for (let m of ["00", "30"]) {
+                    let timeStr = `${h < 10 ? '0'+h : h}:${m}`;
+                    
+                    // Если занято - пропускаем
+                    if (bookedTimes.includes(timeStr)) continue;
+
+                    // Если прошлое время сегодня - пропускаем
+                    if (isToday) {
+                        let [th, tm] = timeStr.split(':').map(Number);
+                        if (th < currentHour) continue;
+                        if (th === currentHour && tm < currentMinutes) continue;
+                    }
+
+                    let opt = document.createElement("option");
+                    opt.value = timeStr;
+                    opt.text = timeStr;
+                    select.appendChild(opt);
+                }
+            }
+            select.disabled = false;
+            checkForm();
         }
 
-        // 2. ФУНКЦИЯ ЗАПИСИ (СОХРАНЕНИЕ В ОБЛАКО)
+        // --- 3. ФУНКЦИЯ ЗАПИСИ ---
         window.saveBooking = function() {
             let date = document.getElementById('date-input').value;
             let time = document.getElementById('time-select').value;
             let phone = document.getElementById('phone-input').value;
             let service = selectedService;
             
+            if (!service || !date || !time || !phone) return;
+
             tg.MainButton.showProgress();
 
-            // Сохраняем в базу по пути: bookings/ДАТА/ВРЕМЯ
             set(ref(db, 'bookings/' + date + '/' + time), {
                 phone: phone,
                 service: service,
-                name: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "Гость"
+                name: user_name,
+                price: selectedPrice
             })
             .then(() => {
-                // Если успешно сохранилось
                 tg.MainButton.hideProgress();
-                let data = { date, time, phone, service };
-                tg.sendData(JSON.stringify(data)); // Закрываем окно
+                let data = { date, time, phone, service, price: selectedPrice, user_name };
+                tg.sendData(JSON.stringify(data));
             })
             .catch((error) => {
                 tg.MainButton.hideProgress();
-                alert("Не удалось записаться: " + error.message);
+                alert("Ошибка записи: " + error.message);
             });
         }
 
-        // --- СЛУШАТЕЛИ СОБЫТИЙ ---
-        document.getElementById('date-input').addEventListener('change', loadTimeSlots);
+        // --- СЛУШАТЕЛИ ---
         
-        // Установка сегодняшней даты
+        // Дата
         let today = new Date().toISOString().split('T')[0];
         document.getElementById('date-input').setAttribute('min', today);
+        document.getElementById('date-input').addEventListener('change', loadTimeSlots);
+        
+        // Телефон (Маска)
+        document.getElementById('phone-input').addEventListener('input', function(e){ 
+            let x=e.target.value.replace(/\D/g,'').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/); 
+            e.target.value=!x[2]?x[1]?'+7':'':`+7 (${x[2]})`+(x[3]?` ${x[3]}`:'')+(x[4]?`-${x[4]}`:'')+(x[5]?`-${x[5]}`:''); 
+            checkForm(); 
+        });
 
-        // Глобальные переменные для доступа из HTML (из-за type="module")
-        let selectedService = null;
-        window.selectService = function(n, p) {
-            selectedService = n;
-            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            checkForm();
-        }
-
+        // Время и общая проверка
         document.getElementById('time-select').addEventListener('change', checkForm);
-        document.getElementById('phone-input').addEventListener('input', checkForm);
 
         function checkForm() {
             let d = document.getElementById('date-input').value;
             let t = document.getElementById('time-select').value;
             let p = document.getElementById('phone-input').value;
-            if (selectedService && d && t && p.length > 5) {
+            
+            if (selectedService && d && t && p.length > 16) {
                 tg.MainButton.text = `Записаться на ${t}`;
                 tg.MainButton.show();
-            } else { tg.MainButton.hide(); }
+            } else { 
+                tg.MainButton.hide(); 
+            }
         }
 
         Telegram.WebApp.onEvent('mainButtonClicked', window.saveBooking);
+
     </script>
 </body>
 </html>
